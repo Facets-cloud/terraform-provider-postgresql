@@ -1,7 +1,6 @@
 package lazy_provider_wrapper
 
 import (
-  "fmt"
   "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -12,7 +11,7 @@ func Wrap(a func() *schema.Provider, inlineProviderConfigure schema.ConfigureFun
 		provider.Schema = map[string]*schema.Schema{}
 		provider.ConfigureFunc = nil
 
-		for key, element := range provider.ResourcesMap {
+		for _, element := range provider.ResourcesMap {
 		 element.Schema["inline_provider"] = &schema.Schema{
 		   Type:        schema.TypeList,
 		   Optional:    true,
@@ -39,9 +38,7 @@ func Wrap(a func() *schema.Provider, inlineProviderConfigure schema.ConfigureFun
       if (element.Exists != nil) {
         element.Exists = wrapResourceExistsMethod(inlineProviderConfigure, element.Exists)
       }
-
-      fmt.Println("Key:", key, "=>", "Element:", element.Schema)
-    }
+		}
 
     return provider
   }

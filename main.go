@@ -18,7 +18,7 @@ func main() {
     ProviderFunc: lazy_provider_wrapper.Wrap(postgresql.Provider, postgresql.InlineProviderConfigure)}
 
   if debugMode {
-    err := plugin.Debug(context.Background(), "rr0hit/postgresql", opts)
+    err := plugin.Debug(context.Background(), "facets-cloud/postgresql", opts)
     if err != nil {
       log.Fatal(err.Error())
     }
