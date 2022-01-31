@@ -198,3 +198,38 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	client := config.NewClient(d.Get("database").(string))
 	return client, nil
 }
+
+func InlineProviderConfigure(data *schema.ResourceData) (interface{}, error) {
+  d := data.Get("inline_provider").([] interface{})[0].(map [string] interface{})
+  var sslMode = d["sslmode"].(string)
+  versionStr := d["expected_version"].(string)
+  version, _ := semver.ParseTolerant(versionStr)
+
+  config := Config{
+    Scheme:            d["scheme"].(string),
+    Host:              d["host"].(string),
+    Port:              d["port"].(int),
+    Username:          d["username"].(string),
+    Password:          d["password"].(string),
+    DatabaseUsername:  d["database_username"].(string),
+    Superuser:         d["superuser"].(bool),
+    SSLMode:           sslMode,
+    ApplicationName:   "Terraform provider",
+    ConnectTimeoutSec: d["connect_timeout"].(int),
+    MaxConns:          d["max_connections"].(int),
+    ExpectedVersion:   version,
+    SSLRootCertPath:   d["sslrootcert"].(string),
+  }
+
+  if value, ok := d["clientcert"]; ok && len(value.([]interface{})) == 1 {
+    if spec, ok := value.([]interface{})[0].(map[string]interface{}); ok {
+      config.SSLClientCert = &ClientCertificateConfig{
+        CertificatePath: spec["cert"].(string),
+        KeyPath:         spec["key"].(string),
+      }
+    }
+  }
+
+  client := config.NewClient(d["database"].(string))
+  return client, nil
+}
